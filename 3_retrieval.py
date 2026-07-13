@@ -14,15 +14,6 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from dotenv import load_dotenv
 load_dotenv()
 
-
-llm = ChatOpenAI(
-    model="qwen-max",  # You can also use "qwen-max", "qwen-turbo", etc.
-    api_key=os.getenv("ALIBABA_API_KEY"),
-    base_url=os.getenv("ALIBABA_OPENAI_URL"),
-    temperature=1.0,
-    max_tokens=100
-)
-
 print("\n\n------------- Part 3: Retrieval --------------")
 loader = WebBaseLoader(
     web_paths=("https://lilianweng.github.io/posts/2023-06-23-agent/",),
