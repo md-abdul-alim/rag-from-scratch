@@ -20,6 +20,8 @@
     (like Chroma, FAISS, or Pinecone) into a standardized LangChain Retriever object.
     when we want to take our stored documents and feed them into 
     an LLM automatically using LangChain's standardized RAG tools.
+    - inside vectorstore.as_retriever(search_kwargs={"k": 1}),
+        - search_kwargs tells the retriever exactly how many documents to return when you search.
 
 # What is the use of RunnablePassthrough?
     - A simple component that takes an input and passes it through unchanged to the output.
@@ -194,3 +196,7 @@ We should use .from_tiktoken_encoder() because it splits text based on actual LL
 Why the overlap matters: If a sentence or key concept is cut exactly in half at the 300-token mark, the overlap ensures the AI still sees the full context in the next chunk, preventing broken or confusing information.
 
 # # embedding follow HNSW graph alogrithm
+
+# get_relevant_documents(old) and invoke (new) both same. both go to database and return result.
+
+
