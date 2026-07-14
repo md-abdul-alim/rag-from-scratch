@@ -199,4 +199,39 @@ Why the overlap matters: If a sentence or key concept is cut exactly in half at 
 
 # get_relevant_documents(old) and invoke (new) both same. both go to database and return result.
 
+# What is multi query retrieval?
 
+"""
+=== MULTI-QUERY RETRIEVAL ===
+
+WHAT IT IS:
+Instead of searching the database with just the user's original question, 
+we ask the LLM to rewrite it into 3 different versions of the same question.
+Then we search the database for ALL 3 versions and combine the unique results.
+
+WHY WE USE IT:
+A single question might use words that don't match the words in your documents 
+(even if the meaning is the same). By generating multiple perspectives, we 
+increase the chance of finding relevant documents that a single query would miss.
+
+EXAMPLE:
+User asks: "What is task decomposition for LLM agents?"
+
+The LLM generates 3 alternative questions:
+  1. "How do AI agents break down complex tasks?"
+  2. "What is the process of dividing tasks for LLMs?"
+  3. "Explain task splitting in autonomous agents."
+
+Each question is searched separately in the database. 
+Then duplicates are removed, giving us a richer set of documents.
+
+HOW IT WORKS IN THIS CODE:
+  generate_queries   -> LLM rewrites the question into 3 versions (split by "\n")
+  retriever.map()    -> Searches the database for EACH of the 3 questions
+  get_unique_union() -> Flattens results and removes duplicate documents
+"""
+
+
+
+Documents:
+    - https://towardsdatascience.com/how-to-make-your-llm-more-accurate-with-rag-fine-tuning/
