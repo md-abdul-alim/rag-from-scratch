@@ -266,6 +266,101 @@ ABOUT THE 'k' VALUE (Default = 60):
 - Higher k (e.g., 100): "Democratic". Lower-ranked docs get more weight.
 """
 
+# To understand a query is "Simple" or ""complex/multi-layered" or how to route query?
+- Determining whether a question is "simple" or "complex/multi-layered" is one of the most important challenges in building advanced RAG systems. In the industry, this is called Query Routing or Intent Classification.
 
+You can understand and automate this decision using a combination of linguistic clues (rules of thumb) and programmatic checks (code). Here is how you can do it.
+
+1. Linguistic Clues (How to spot them)
+    - Simple Questions (Use Standard RAG)
+        - Single Intent: Asks for one specific fact, definition, or piece of information.
+        - Direct Lookup: The answer likely exists in a single paragraph or chunk of text.
+        - Examples:
+            - "What is the refund policy?"
+            - "Who is the CEO of the company?"
+            - "List the features of the Pro plan."
+
+    - Complex / Multi-layered Questions (Use Decomposition)
+        - Multiple Intents: Contains conjunctions like "and", "or", or asks for multiple distinct things.
+        - Comparisons: Asks to contrast two or more things.
+        - Multi-hop Reasoning: The answer to part A is needed to understand or find part B.
+        - Broad Summaries: Asks for a high-level overview of a massive topic.
+        - Examples:
+            - "Compare the refund policy of the Pro plan with the Basic plan." (Comparison)
+            - "What caused the server outage last week, and how much did it cost the company?" (Multi-hop: find cause → find financial impact)
+            - "How do I set up the API, and what are the rate limits and error codes I should watch out for?" (Multiple distinct intents)
+
+2. Programmatic Solutions (How to code it)
+    We don't want to manually check every query. Instead, you can build a Router at the very beginning of your pipeline to decide which path to take. Here are the 3 best ways to do it:
+
+    - Approach A: The LLM Router (Most Reliable & Recommended)
+        - Use a fast, cheap LLM call to classify the question before doing any heavy RAG work.
+
+        ```
+            from langchain_core.prompts import ChatPromptTemplate
+            from langchain_core.output_parsers import StrOutputParser
+
+            # 1. Define a routing prompt
+            router_prompt = ChatPromptTemplate.from_template("""
+            You are an expert at analyzing user questions. 
+            Classify the following question as either 'SIMPLE' or 'COMPLEX'.
+
+            - SIMPLE: Asks for a single fact, definition, or direct lookup.
+            - COMPLEX: Asks for comparisons, multiple distinct pieces of information, multi-step reasoning, or broad summaries.
+
+            Question: {question}
+
+            Output ONLY the word 'SIMPLE' or 'COMPLEX'.
+            """)
+
+            # 2. Create the router chain (use a fast/cheap model like gpt-3.5-turbo or gpt-4o-mini)
+            router_chain = router_prompt | llm | StrOutputParser()
+
+            # 3. Route the query
+            user_question = "What are the main components of an LLM agent, and how do they compare to traditional software agents?"
+            classification = router_chain.invoke({"question": user_question}).strip()
+
+            if classification == "COMPLEX":
+                print("Routing to: Decomposition RAG Pipeline")
+                # Run the decomposition code you shared earlier
+            else:
+                print("Routing to: Standard RAG Pipeline")
+                # Run standard: retriever.get_relevant_documents(user_question) -> LLM answer
+        ```
+
+    - Approach B: The "Sub-question Test" (Self-Assessing)
+        - You can ask the LLM to attempt decomposition. If the LLM decides the question can't be broken down (or only generates 1 question), it’s a simple question.
+
+        ```
+        # Ask the LLM to generate sub-questions
+        sub_questions = generate_queries_decomposition.invoke({"question": user_question})
+
+        # If the LLM only returns 1 question (or the original question), it's simple
+        if len(sub_questions) <= 1:
+            print("Question is simple. Use standard RAG.")
+        else:
+            print(f"Question is complex. Breaking into {len(sub_questions)} sub-questions.")
+            # Proceed with decomposition loop
+        ```
+
+    - Approach C: Keyword / Heuristic Matching (Fastest, but less accurate)
+        - If you want to avoid LLM calls entirely for routing, you can use simple Python logic to look for "complexity trigger words".
+
+        ```
+            complex_triggers = ["compare", "difference", "versus", "vs", "and how", "and what", "steps to", "entire history", "pros and cons"]
+
+            user_question = user_question.lower()
+
+            # Check if multiple triggers exist or if the question is unusually long
+            is_complex = any(trigger in user_question for trigger in complex_triggers) or len(user_question.split()) > 15
+
+            if is_complex:
+                print("Routing to: Decomposition RAG")
+            else:
+                print("Routing to: Standard RAG")
+        ```
+
+# 
+# 
 Documents:
     - https://towardsdatascience.com/how-to-make-your-llm-more-accurate-with-rag-fine-tuning/
