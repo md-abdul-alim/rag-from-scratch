@@ -231,6 +231,40 @@ HOW IT WORKS IN THIS CODE:
   get_unique_union() -> Flattens results and removes duplicate documents
 """
 
+# What is RAG Fusion?
+
+"""
+=== RAG-FUSION EXPLANATION (reciprocal_rank_fusion)===
+
+WHAT IT DOES:
+1. Generates 4 different search queries from the original question.
+2. Searches the database for all 4 queries (retriever.map()).
+3. Merges the 4 result lists using Reciprocal Rank Fusion (RRF).
+
+PURPOSE:
+Improves retrieval accuracy by finding documents that consistently rank high 
+across multiple query variations, rather than just relying on a single search.
+
+WHY reciprocal_rank_fusion INSTEAD OF get_unique_union?
+- get_unique_union ONLY removes duplicates and ignores the order/rank.
+- reciprocal_rank_fusion (RRF) calculates a score for each document based on 
+  its rank position (Score = 1 / (rank + k)). 
+- It keeps documents unique AND sorts them so the most consistently relevant 
+  documents (appearing at the top of multiple search results) are prioritized.
+
+WHY RECALCULATE RANK IF INDEXING ALREADY FIXED IT?
+- retriever.map() returns 4 SEPARATE lists. A document might be Rank 0 in 
+  Query 1, but Rank 2 in Query 2. 
+- RRF solves this conflicting ranking by adding up the scores from all 4 lists 
+  to create a single "Master Rank" (consensus), identifying the overall best 
+  documents across all query perspectives.
+
+ABOUT THE 'k' VALUE (Default = 60):
+- Formula: Score = 1 / (rank + k). 
+- k=60 is the standard research-backed value. It balances the scoring.
+- Lower k (e.g., 10): "Elitist". Top results dominate heavily.
+- Higher k (e.g., 100): "Democratic". Lower-ranked docs get more weight.
+"""
 
 
 Documents:
