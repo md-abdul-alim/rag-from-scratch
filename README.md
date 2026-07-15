@@ -494,6 +494,86 @@ Traditional embedding might miss this match. HyDE bridges this gap.
 **A:** "I would avoid HyDE in low-latency, high-throughput production systems where cost and speed are strict constraints. It's also unnecessary if the user queries are already highly specific and use the exact same domain terminology as the source documents (e.g., exact ID lookups or precise keyword searches)."
 
 
+# What is RunnableLambda?
+- A wrapper that converts a standard Python function into a LangChain `Runnable` object, allowing it to be used inside an LCEL chain.
+
+- When to use it:
+    - Custom Logic: When you need to do something LangChain doesn't have a built-in tool for (e.g., custom math, calling an external non-LLM API, complex dictionary manipulation, or routing logic).
+    - Bridging Code: LangChain chains expect Runnable objects. If you have a normal Python function, wrapping it in RunnableLambda makes it "chain-compatible."
+
+
+# ----------------------------
+# What is Logical and Semantic Routing in RAG
+
+## 1. What is Routing in RAG?
+In Retrieval-Augmented Generation (RAG), "routing" directs a user's query to the most appropriate data source, index, or retrieval strategy before fetching information. This prevents sending every query to a single massive database, improving accuracy, speed, and cost.
+
+### Logical Routing
+Uses deterministic rules, keywords, metadata, or explicit LLM classification to direct a query. It acts like a rule-based switchboard.
+- *Mechanism:* Keyword matching, regex, or categorical LLM classification (e.g., "HR", "IT", "Finance").
+
+### Semantic Routing
+Uses vector embeddings and similarity search to understand the intent and meaning behind a query, routing it to the most contextually relevant data source.
+- *Mechanism:* Query embedding is compared against pre-computed embeddings of different data sources to find the closest semantic match.
+
+---
+
+## 2. When to Use Which?
+
+| Feature | When to Use |
+| :--- | :--- |
+| **Logical Routing** | • Data is strictly partitioned into distinct domains (e.g., HR vs. IT).<br>• Queries contain clear, predictable keywords.<br>• You need low-latency, low-cost, and deterministic behavior.<br>• Compliance requires strict, auditable routing rules. |
+| **Semantic Routing** | • Queries are nuanced, conversational, or ambiguous.<br>• Data domains overlap or are not easily defined by keywords.<br>• You want the system to handle natural language variations without manual rule updates.<br>• You need to dynamically pick the best specialized vector store. |
+
+---
+
+## 3. Pros and Cons
+
+### Logical Routing
+- **Pros:** 
+  - ⚡ Fast & Cheap (no embedding generation needed for routing).
+  - 🔒 Deterministic (easy to predict, test, and debug).
+  - 🛠️ Easy to implement with simple rules.
+- **Cons:** 
+  - 🧱 Brittle (fails on unexpected phrasing, slang, or typos).
+  - 📈 High maintenance (requires manual rule updates as topics evolve).
+
+### Semantic Routing
+- **Pros:** 
+  - 🧠 Flexible & Intelligent (understands intent, synonyms, and context).
+  - 📉 Low maintenance (adapts to new phrasing automatically).
+  - 🎯 Higher accuracy for complex, multi-domain queries.
+- **Cons:** 
+  - 💰 Costly & Slower (requires embedding generation and vector search).
+  - 🌫️ Non-deterministic (can occasionally misroute; harder to debug).
+
+---
+
+## 4. Real-World Example
+
+**Context:** An Internal Company Assistant with three knowledge bases: `HR_Policies`, `IT_Support`, and `Finance_Expenses`.
+**User Query:** *"I paid out of pocket for a client meal, what's the process?"*
+
+### Logical Routing Execution:
+- Scans for predefined keywords like "expense", "reimbursement", or "receipt".
+- *Result:* If "out of pocket" is not in the keyword list, it might fail or route to a generic fallback. It requires manual rule updates to catch this phrasing.
+
+### Semantic Routing Execution:
+- Converts the query into a vector embedding.
+- Compares it to the summary embeddings of the three knowledge bases.
+- `Finance_Expenses` scores 88% similarity because its documents contain semantically related concepts like "reimbursement", "out of pocket", and "client meals".
+- *Result:* Successfully routes to `Finance_Expenses` based on meaning, without needing exact keyword matches.
+
+---
+
+## 5. Best Practice: Hybrid Routing
+Production systems often combine both:
+1. Use **Logical Routing** first for high-confidence, explicit matches (e.g., specific product IDs or clear department mentions).
+2. Fall back to **Semantic Routing** for ambiguous or conversational queries to intelligently infer the best destination.
+# ----------------------------
+
+
+
 # ------------------------------------
 # Documents:
 
