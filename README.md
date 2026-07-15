@@ -361,6 +361,8 @@ You can understand and automate this decision using a combination of linguistic 
         ```
 
 # 
-# 
-Documents:
-    - https://towardsdatascience.com/how-to-make-your-llm-more-accurate-with-rag-fine-tuning/
+# ------------------------------------
+# Documents:
+
+- https://towardsdatascience.com/how-to-make-your-llm-more-accurate-with-rag-fine-tuning/
+- https://github.com/microsoft/markitdown
