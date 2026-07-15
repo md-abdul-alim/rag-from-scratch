@@ -360,7 +360,72 @@ You can understand and automate this decision using a combination of linguistic 
                 print("Routing to: Standard RAG")
         ```
 
+# What is the Step-Back Feature?
+- Step-Back Prompting is a technique where instead of directly answering a specific question, you first generate a more general/abstract version of that question, then use BOTH the original and generalized questions to retrieve context.
+
+- Visual Summary
+
+User Question: "What is task decomposition for LLM agents?"
+                    ↓
+            ┌───────┴────────┐
+            ↓                ↓
+    [Specific Query]   [Step-Back Query]
+    "task decomposition   "LLM agent design
+     for LLM agents"      principles"
+            ↓                ↓
+    [Retrieve Docs A]  [Retrieve Docs B]
+    (specific details)  (foundational concepts)
+            ↓                ↓
+            └───────┬────────┘
+                    ↓
+         Combine A + B → Generate Answer
+
+# 🧠 Step-Back RAG: Interview Cheat Sheet
+
+## 1. What is it? (The Elevator Pitch)
+Step-Back RAG is an advanced retrieval technique where the system first generates a **broader, more abstract version** of the user's specific query. It then retrieves documents for *both* the specific and the broad query, combining them to provide an answer that is both precise and conceptually grounded.
+
+## 2. How It Works (The 3-Step Pipeline)
+1. **Abstract**: An LLM rewrites the specific user query into a general "step-back" question.
+2. **Dual Retrieval**: The vector database is queried twice:
+   - Query A: The **original** (specific) query.
+   - Query B: The **step-back** (general) query.
+3. **Synthesis**: The LLM answers the *original* question using the combined context from both retrievals.
+
+## 3. Why Use It? (The Problem It Solves)
+Standard RAG suffers from the "missing the forest for the trees" problem. Highly specific queries often miss foundational documents due to keyword mismatches. Step-Back ensures the LLM gets the **specific details** PLUS the **first-principles knowledge** needed to reason correctly.
+
+## 4. When to Use It ✅ vs. Avoid It ❌
+- **✅ Use when**: Questions require reasoning, multi-hop logic, or foundational context (e.g., debugging complex errors, medical/legal analysis, explaining "why" something happens).
+- **❌ Avoid when**: Simple factual lookup (e.g., "What is the API endpoint for X?"), exact keyword matching is required, or when latency/cost is a strict constraint (it adds 1 extra LLM call + 1 extra retrieval).
+
+---
+
+## 🎯 Interview Example: Standard vs. Step-Back
+
+**User Query**: *"Why is my LLM agent getting stuck in a loop when trying to use the calculator tool?"*
+
+- **Standard RAG Retrieval**: Searches for exact keywords. Might only retrieve a single forum post saying "check your max_iterations parameter." (Misses the bigger picture).
+- **Step-Back Query Generated**: *"What are the core principles of tool-use reasoning and loop prevention in LLM agents?"*
+- **Step-Back Retrieval**: Finds foundational documentation on the agent's ReAct loop, stop conditions, and tool-schema formatting.
+- **Final Result**: The LLM combines the specific error log with the foundational architecture docs to give a root-cause answer: *"Your agent is looping because the calculator tool is returning an unformatted string, which violates the ReAct loop's expected JSON schema, preventing the 'stop' condition from triggering. Fix the tool's output formatter."*
+
+---
+
+## 🗣️ How to Answer in an Interview
+
+**Interviewer**: *"Can you explain Step-Back Prompting in RAG and when you would use it?"*
+
+**Your Answer**: 
+"Step-Back RAG is a technique used to improve reasoning in complex queries. Instead of just retrieving documents for a highly specific question, we first prompt an LLM to generate a broader, more abstract 'step-back' version of that question. 
+
+We then perform **dual retrieval**: one for the specific question and one for the general question. Finally, we feed both sets of context to the LLM to answer the original query. 
+
+I would use this when dealing with complex, multi-hop questions where the user needs both specific facts and foundational context to get a correct answer—like debugging a system or explaining a complex domain concept. I would avoid it for simple, direct factual lookups to save on latency and API costs."
+
 # 
+- 
+
 # ------------------------------------
 # Documents:
 
