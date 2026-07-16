@@ -572,9 +572,42 @@ Production systems often combine both:
 2. Fall back to **Semantic Routing** for ambiguous or conversational queries to intelligently infer the best destination.
 # ----------------------------
 
+# What is Multi-Representation Indexing (also known as Multi-Vector Retrieval or Parent Document Retriever)?
 
+### What is Multi-Representation Indexing?
+- In standard RAG, you split documents into chunks and embed them. This creates a dilemma:
+Small chunks have precise embeddings (good for retrieval) but lack surrounding context (bad for LLM generation).
+Large chunks have rich context but "diluted" embeddings, making them harder to match with a user's query.
+Multi-Representation Indexing solves this by storing two representations of the same document:
+A concise representation (like a summary, a hypothetical question, or a small chunk) stored in a Vector Store for highly accurate retrieval.
+The original, full parent document stored in a Document/Byte Store to provide complete context to the LLM.
+
+### When Should You Use This RAG Feature?
+- You should use Multi-Representation Indexing in the following scenarios:
+Long, Dense Documents: When dealing with research papers, legal contracts, or long blog posts (like the Lilian Weng posts in your code) where small chunks lose critical context.
+The "Goldilocks" Chunking Problem: When you've tried standard chunking and found that small chunks fail to answer questions fully, but large chunks result in poor retrieval accuracy (low similarity scores).
+
+Mixed Media / Complex Data: This pattern is also heavily used to index a text summary of a table or an image, but retrieve the actual table/image for the LLM to process.
+High-Stakes Accuracy: When you need the retrieval step to be as precise as possible (matching against a clean, focused summary) but the generation step to be as informed as possible (reading the full source).
+
+---
+
+### 🎤 Interview Q&A Cheat Sheet
+
+**Interviewer**: "Can you explain Multi-Representation Indexing (or Parent Document Retrieval) and when you would use it?"
+
+**Your Answer**:
+"Multi-Representation Indexing solves the classic RAG chunking trade-off: small chunks retrieve well but lack context, while large chunks have context but retrieve poorly. 
+
+It works by maintaining two separate stores linked by a unique ID. During indexing, we generate a concise summary (or small chunk) of a large document. We embed and store this summary in the **Vector Store** for highly accurate search, while storing the full original document in a **Document/Byte Store**. 
+
+During retrieval, the system searches the vector store using the summary. Once it finds the best match, it uses the attached document ID to fetch the *full original parent document* from the byte store, giving the LLM complete context to generate a high-quality answer.
+
+**Example**: 
+Imagine a 20-page financial earnings report. If we chunk it by 500 tokens, a query about 'Q3 revenue risks' might match a chunk that only contains a fragment of a sentence, confusing the LLM. With Multi-Representation Indexing, we embed a 2-sentence summary of the entire 'Risk Factors' section. The search easily finds this summary, but the retriever then fetches the *entire* 2-page 'Risk Factors' section to give the LLM full context, resulting in a comprehensive and accurate answer."
 
 # ------------------------------------
+
 # Documents:
 
 - https://towardsdatascience.com/how-to-make-your-llm-more-accurate-with-rag-fine-tuning/
