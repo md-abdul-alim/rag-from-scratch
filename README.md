@@ -606,6 +606,10 @@ During retrieval, the system searches the vector store using the summary. Once i
 **Example**: 
 Imagine a 20-page financial earnings report. If we chunk it by 500 tokens, a query about 'Q3 revenue risks' might match a chunk that only contains a fragment of a sentence, confusing the LLM. With Multi-Representation Indexing, we embed a 2-sentence summary of the entire 'Risk Factors' section. The search easily finds this summary, but the retriever then fetches the *entire* 2-page 'Risk Factors' section to give the LLM full context, resulting in a comprehensive and accurate answer."
 
+---
+# What is RAPTO concept in RAG? V.V.I.
+- https://chatgpt.com/share/6a588d18-35c8-83ee-bf0f-aaeb09f992dd
+- https://chat.qwen.ai/s/cec5062a-aed5-4016-8d6f-5c8d32e25eac?fev=0.2.73
 # ------------------------------------
 
 # Documents:
