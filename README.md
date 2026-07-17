@@ -1,7 +1,56 @@
-# rag-from-scratch
+# Types of RAG Architectures:
+- These are the clearest and most 14 commonly used types as per technical blogs, documentation:
+    - Naive RAG
+    - Multimodal RAG
+    - Multi-Stage RAG
+    - Multi-Agent RAG
+    - RAPTOR
+    - Corrective RAG
+    - Graph RAG
+    - Hybrid RAG
+    - Adaptive RAG
+    - Agentic RAG
+    - Advanced RAG
+    - Self RAG
+    - HYDE
+    - ColBERT RAG
+
+---
+
+# RAG Architecture Comparison Matrix 
 
 
- - LangChain Expression Language (LCEL)
+| Architecture              | Retrieval Steps                          | Typical LLM Calls | Main Strength                                      | Typical Use Case                          | Indexing Cost | Query Cost | Infrastructure Cost | Overall Cost       | Complexity | Latency | Why the Cost?                                             | Best For                       |
+| ------------------------- | ---------------------------------------- | ----------------: | -------------------------------------------------- | ----------------------------------------- | ------------- | ---------- | ------------------- | ------------------ | :--------: | :-----: | --------------------------------------------------------- | ------------------------------ |
+| **Naive RAG**             | 1                                        |                 1 | Simple and fast retrieval                          | FAQs, small knowledge bases               | Low           | Low        | Low                 | 🟢 **Low**         |      ⭐     |  ⭐⭐⭐⭐⭐  | Single vector search and one LLM call                     | MVPs, prototypes               |
+| **Multimodal RAG**        | 1–2                                      |               1–2 | Retrieves text, images, audio, PDFs                | Vision assistants, document understanding | High          | Medium     | High                | 🔴 **High**        |    ⭐⭐⭐⭐    |   ⭐⭐⭐   | Multiple embedding models and multimodal indexing         | Image/PDF/Video QA             |
+| **Multi-Stage RAG**       | 2–3                                      |               1–2 | Higher precision through multiple retrieval phases | Large document repositories               | Medium        | High       | Medium              | 🟡 **Medium–High** |     ⭐⭐⭐    |    ⭐⭐   | Multiple retrieval passes and filtering                   | Large-scale search             |
+| **Multi-Agent RAG**       | Multiple collaborative retrievals        |             5–20+ | Specialized agents collaborate                     | Enterprise AI workflows                   | High          | Very High  | Very High           | 🔴 **Very High**   |    ⭐⭐⭐⭐⭐   |    ⭐    | Multiple LLM agents, orchestration, memory                | Complex enterprise assistants  |
+| **RAPTOR**                | Hierarchical retrieval                   |                 1 | Excellent long-document understanding              | Books, reports, research papers           | Very High     | Medium     | Medium              | 🔴 **High**        |    ⭐⭐⭐⭐    |   ⭐⭐⭐   | Recursive summarization tree built during indexing        | Large document collections     |
+| **Corrective RAG (CRAG)** | Retrieval + validation + retry           |               2–3 | Detects and corrects poor retrieval                | High-accuracy QA systems                  | Medium        | High       | Medium              | 🔴 **High**        |    ⭐⭐⭐⭐    |    ⭐⭐   | Retrieval evaluation and fallback retrieval               | Critical applications          |
+| **Graph RAG**             | Graph traversal                          |                 1 | Relationship-aware reasoning                       | Legal, healthcare, finance                | Very High     | Medium     | Very High           | 🔴 **High**        |    ⭐⭐⭐⭐    |   ⭐⭐⭐   | Knowledge graph creation and maintenance                  | Connected knowledge domains    |
+| **Hybrid RAG**            | Dense + Sparse retrieval                 |                 1 | Higher recall and precision                        | Enterprise search                         | Medium        | Medium     | Medium              | 🟡 **Medium**      |     ⭐⭐⭐    |   ⭐⭐⭐⭐  | Maintains multiple search indexes                         | Production search systems      |
+| **Adaptive RAG**          | Dynamic routing (0–2 retrievals)         |               1–2 | Uses retrieval only when needed                    | Mixed-complexity questions                | Medium        | Medium     | Medium              | 🟡 **Medium**      |    ⭐⭐⭐⭐    |   ⭐⭐⭐   | Query complexity detection and routing logic              | Cost-efficient production AI   |
+| **Agentic RAG**           | Dynamic multi-step retrieval             |             3–10+ | Planning, reasoning, tool usage                    | AI copilots and autonomous assistants     | Medium        | Very High  | High                | 🔴 **Very High**   |    ⭐⭐⭐⭐⭐   |    ⭐    | Multiple agent decisions, tool calls, iterative retrieval | Autonomous AI systems          |
+| **Advanced RAG**          | 1 + reranking                            |               1–2 | Better retrieval quality                           | Production RAG applications               | Low           | Medium     | Low                 | 🟡 **Medium**      |     ⭐⭐     |   ⭐⭐⭐⭐  | Query rewriting, reranking, metadata filtering            | Most production deployments    |
+| **Self RAG**              | Iterative retrieval with self-reflection |               3–8 | LLM evaluates its own retrieval                    | Research assistants                       | Medium        | Very High  | Medium              | 🔴 **Very High**   |    ⭐⭐⭐⭐⭐   |    ⭐    | Reflection loops require multiple LLM calls               | Complex reasoning tasks        |
+| **HYDE**                  | Hypothetical document → retrieval        |                 2 | Improves retrieval for ambiguous queries           | Low-resource domains, sparse datasets     | Low           | Medium     | Low                 | 🟡 **Medium**      |     ⭐⭐⭐    |   ⭐⭐⭐⭐  | Generates a hypothetical answer before retrieval          | Difficult semantic search      |
+| **ColBERT RAG**           | Late-interaction retrieval               |                 1 | Highly accurate semantic retrieval                 | Large-scale search engines                | High          | High       | High                | 🔴 **High**        |    ⭐⭐⭐⭐    |    ⭐⭐   | Token-level embeddings and late interaction scoring       | High-precision semantic search |
+
+---
+
+## Recommendation by Budget
+
+| Budget                                   | Recommended Architectures                    |
+| ---------------------------------------- | -------------------------------------------- |
+| 💲 **Low Budget**                        | Naive RAG                                    |
+| 💲💲 **Moderate Budget**                 | Advanced RAG, Hybrid RAG, Adaptive RAG       |
+| 💲💲💲 **Higher Budget**                 | Multi-Stage RAG, Graph RAG, RAPTOR, ColBERT  |
+| 💲💲💲💲 **Enterprise / Premium Budget** | CRAG, Self-RAG, Agentic RAG, Multi-Agent RAG |
+
+---
+
+ #### LangChain Expression Language (LCEL)
 
  # What is the use of OpenAIEmbeddings()?
     - OpenAIEmbeddings Its primary purpose is to convert text into numerical vectors (embeddings).
