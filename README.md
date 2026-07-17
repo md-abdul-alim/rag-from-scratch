@@ -794,3 +794,7 @@ Reranking (Cross-Encoders, Cohere Rerank, BGE Reranker)
 ColBERT / Late Interaction Retrieval
 Multi-vector Retrieval (e.g., ColBERTv2, multi-vector document representations)
 Agentic and Graph-based Retrieval
+
+
+Reference:
+- https://github.com/langchain-ai/rag-from-scratch/
